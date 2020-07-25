@@ -1,0 +1,201 @@
+#+TITLE: Doom Emacs Literate Configuration
+#+AUTHOR: Guilherme G. Haetinger
+
+* About
+This is my Literate Configuration file.
+It is auto reloaded every time you reload /emacs/ after changing the file.
+This is achieved by computing a /hash/ out of the file's content and comparing
+with a saved /hash/ from the previous configuration.
+If it changed, we *tangle* this file once again so it will be loaded probably.
+
+* Packages to Load
+** Package Archives
+
+Integrating /MELPA/ as a package server.
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+#+END_SRC
+** Programming Tools
+
+Loading packages related to Programming Languages.
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(require 'lsp-julia)
+#+END_SRC
+** Orgmode
+
+Loading packages related to Orgmode.
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(require 'org)
+(require 'ox)
+(require 'ox-hugo)
+(require 'org-ref)
+#+END_SRC
+** Theming
+
+Loading packages needed for appearance purposes.
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(require 'kaolin-themes)
+(require 'treemacs)
+#+END_SRC
+** General
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(require 'auto-complete)
+#+END_SRC
+* Appearance
+** Theming & Fonts
+*** Treemacs
+
+Loading =treemacs kaolin= theme.
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(kaolin-treemacs-theme)
+(setq doom-themes-treemacs-theme "kaolin")
+#+END_SRC
+
+*** Doom
+Setting the Font size for both /regular/ and /Big/ mode, theme as *Doom's Dracula* and Treemacs theme as *Doom color*. Number display as Relative Numbers.
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq doom-font                  (font-spec :family "Iosevka" :size 13)
+      doom-big-font              (font-spec :family "Iosevka" :size 25)
+      doom-theme                 'doom-gruvbox
+      display-line-numbers-type  'relative)
+#+END_SRC
+
+Setting the initial screen banner.
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq +doom-dashboard-banner-file (expand-file-name "util/logo.png" doom-private-dir))
+#+END_SRC
+
+** Display
+
+#+BEGIN_SRC elisp :tangle yes :results none
+ (setq split-width-threshold  0
+       split-height-threshold 0)
+#+END_SRC
+
+* Orgmode
+** Functionalities
+
+If auto-fill isn't wanted, use this.
+# #+BEGIN_SRC elisp :tangle yes :results none
+# (remove-hook 'org-mode-hook #'auto-fill-mode)
+# (add-hook 'org-mode-hook #'turn-off-auto-fill)
+# (add-hook 'org-mode-hook #'visual-line-mode)
+# #+END_SRC
+
+
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-file-apps
+  '((auto-mode . emacs)
+    ("\\.mm\\'" . default)
+    ("\\.x?html?\\'" . "brave %s")
+    ("\\.pdf\\'" . "zathura %s")))
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(load-file "~/.doom.d/util/yt_org.el")
+#+END_SRC
+** Display
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-image-actual-width 500
+      org-ellipsis           " ▼")
+#+END_SRC
+** Org Agenda
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-agenda-files '("~/Dropbox/org"))
+#+END_SRC
+** Org Export
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-confirm-babel-evaluate nil)
+#+END_SRC
+*** LaTeX
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-latex-pdf-process
+      '("latexmk -pdf %f"))
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-latex-listings t)
+(add-to-list 'org-latex-packages-alist '("" "listings"))
+(add-to-list 'org-latex-packages-alist '("" "color"))
+#+END_SRC
+*** Classes
+#+BEGIN_SRC elisp :tangle yes :results none
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-classes
+               '("IEEEtran"
+                 "\\documentclass{IEEEtran}"
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+#+END_SRC
+
+* Keybindings
+** Org Agenda
+#+BEGIN_SRC elisp :tangle yes :results none
+(map! :map org-agenda-mode-map "C-c v" 'org-agenda-entry-text-mode)
+#+END_SRC
+** All Buffers
+#+BEGIN_SRC elisp :tangle yes :results none
+(map! :g "C-x t" 'treemacs
+      :g "C-c c" 'open-literate-config);
+
+(global-set-key (kbd "C-<prior>")  'centaur-tabs-backward)
+(global-set-key (kbd "C-<next>") 'centaur-tabs-forward)
+#+END_SRC
+
+* Programming Tools
+** REPL Display
+#+BEGIN_SRC elisp :tangle yes :results none
+(set-popup-rule! "*Python*"              :side 'right :width 0.5)
+(set-popup-rule! "*julia*"               :side 'right :width 0.5)
+#+END_SRC
+** Julia Lsp Server
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq lsp-julia-package-dir nil
+      lsp-julia-package-dir (concat lsp-julia--self-path "languageserver")
+      lsp-julia-flags       `(,(concat "--project=" lsp-julia-package-dir)
+                                       "--startup-file=no"
+                                       "--history-file=no"))
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(add-hook 'julia-repl-mode-hook #'lsp-mode)
+(add-to-list 'auto-mode-alist '("\\.jl\\'" . julia-mode))
+#+END_SRC
+** OSL (Open Shading Language)
+#+BEGIN_SRC elisp :tangle yes :results none
+(load-file "~/.doom.d/util/osl_mode.el")
+(setq auto-mode-alist (append '(("\\.osl$" . osl-mode))
+      auto-mode-alist))
+#+END_SRC
+
+* General Setup
+** Browser
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "brave")
+#+END_SRC
+** Scratch Buffer
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq doom-scratch-buffer-major-mode 'org-mode)
+(set-popup-rule! "^\\*doom:scratch.*\\*" :side 'right)
+#+END_SRC
+** User Info
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq user-full-name    "Guilherme Gomes Haetinger"
+      user-mail-address "ghaetinger@gmail.com")
+#+END_SRC
+** Autocomplete
+#+BEGIN_SRC elisp :tangle yes :results none
+(global-auto-complete-mode 1)
+(add-to-list 'ac-modes 'org-mode)
+#+END_SRC

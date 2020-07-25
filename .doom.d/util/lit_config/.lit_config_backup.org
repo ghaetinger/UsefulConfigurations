@@ -1,0 +1,191 @@
+#+TITLE: Doom Emacs Literate Configuration
+#+AUTHOR: Guilherme G. Haetinger
+
+* Packages
+** Package Archives
+#+BEGIN_SRC elisp :tangle yes :results none
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+#+END_SRC
+** E-mail Client
+#+BEGIN_SRC elisp :tangle yes :results none
+(require 'mu4e)
+(require 'mu4e-alert)
+(require 'smtpmail)
+#+END_SRC
+** Programming Tools
+#+BEGIN_SRC elisp :tangle yes :results none
+(require 'lsp-julia)
+#+END_SRC
+** Orgmode
+#+BEGIN_SRC elisp :tangle yes :results none
+(require 'org)
+(require 'ox)
+(require 'ox-hugo)
+(require 'org-ref)
+#+END_SRC
+
+* Appearance
+** Theming & Fonts
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq doom-font                  (font-spec :family "Terminus (TTF)" :size 16)
+      doom-big-font              (font-spec :family "Fira Code" :size 25)
+      doom-theme                 'doom-dracula
+      doom-themes-treemacs-theme 'doom-color
+      display-line-numbers-type  'relative)
+#+END_SRC
+** Display
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq split-width-threshold  0
+      split-height-threshold 0)
+#+END_SRC
+
+* E-mail Client
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq mu4e-root-maildir       "~/.Maildir"
+      mu4e-drafts-folder      "/Gmail/[Gmail].Drafts"
+      mu4e-sent-folder        "/Gmail/[Gmail].Sent Mail"
+      mu4e-trash-folder       "/Gmail/[Gmail].Trash"
+      mu4e-refile-folder      "/Gmail/[Gmail].All Mail"
+      +mu4e-backend           'offlineimap
+      mu4e-html2text-command  "html2text2 | grep -v '&nbsp_place_holder;'"
+      mu4e-compose-signature (concat
+                              "*Guilherme Gomes Haetinger*\n"
+                              "/Porto Alegre, Brazil/\n")
+      )
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(load-file "/usr/share/emacs/site-lisp/mu4e/mu4e-mark.el")
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq smtpmail-smtp-service         587
+      message-send-mail-function    'smtpmail-send-it
+      strttls-use-gnutls            t
+      smtpmail-starttls-credentials '(("smtp.gmail.com"
+                                       587 nil nil))
+      smtpmail-default-smtp-server  "smtp.gmail.com"
+      smtpmail-smtp-server          "smtp.gmail.com"
+      smtpmail-debug-info           t)
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq doom-modeline-mu4e t)
+(add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display)
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(add-to-list 'mu4e-view-actions '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+#+END_SRC
+
+* Orgmode
+** Functionalities
+#+BEGIN_SRC elisp :tangle yes :results none
+(remove-hook 'org-mode-hook #'auto-fill-mode)
+(add-hook 'org-mode-hook #'turn-off-auto-fill)
+(add-hook 'org-mode-hook #'visual-line-mode)
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-file-apps
+  '((auto-mode . emacs)
+    ("\\.mm\\'" . default)
+    ("\\.x?html?\\'" . "brave %s")
+    ("\\.pdf\\'" . "zathura %s")))
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(load-file "~/.doom.d/yt_org.el")
+#+END_SRC
+** Display
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-image-actual-width 500
+      org-ellipsis           " ▼")
+#+END_SRC
+** Org Agenda
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-agenda-files '("~/Dropbox/org"))
+#+END_SRC
+** Org Export
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-confirm-babel-evaluate nil)
+#+END_SRC
+*** LaTeX
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-latex-pdf-process
+      '("pdflatex %f"
+        "bibtex %b"
+        "pdflatex %f"
+        "pdflatex %f"))
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq org-latex-listings t)
+(add-to-list 'org-latex-packages-alist '("" "listings"))
+(add-to-list 'org-latex-packages-alist '("" "color"))
+#+END_SRC
+
+*** Classes
+#+BEGIN_SRC elisp :tangle yes :results none
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-classes
+               '("IEEEtran"
+                 "\\documentclass{IEEEtran}"
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+#+END_SRC
+
+* Keybindings
+** Org Agenda
+#+BEGIN_SRC elisp :tangle yes :results none
+(map! :map org-agenda-mode-map "C-c v" 'org-agenda-entry-text-mode)
+#+END_SRC
+** All Buffers
+#+BEGIN_SRC elisp :tangle yes :results none
+(map! :g "C-x t" 'treemacs
+      :g "C-c m"   'mu4e)
+#+END_SRC
+
+* Programming Tools
+** REPL Display
+#+BEGIN_SRC elisp :tangle yes :results none
+(set-popup-rule! "*Python*"              :side 'right :width 0.5)
+(set-popup-rule! "*julia*"               :side 'right :width 0.5)
+#+END_SRC
+** Julia Lsp Server
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq lsp-julia-package-dir nil
+      lsp-julia-package-dir (concat lsp-julia--self-path "languageserver")
+      lsp-julia-flags       `(,(concat "--project=" lsp-julia-package-dir)
+                                       "--startup-file=no"
+                                       "--history-file=no"))
+#+END_SRC
+
+#+BEGIN_SRC elisp :tangle yes :results none
+(add-hook 'julia-repl-mode-hook #'lsp-mode)
+(add-to-list 'auto-mode-alist '("\\.jl\\'" . julia-mode))
+#+END_SRC
+** OSL (Open Shading Language)
+#+BEGIN_SRC elisp :tangle yes :results none
+(load-file "~/.doom.d/osl_mode.el")
+(setq auto-mode-alist (append '(("\\.osl$" . osl-mode))
+      auto-mode-alist))
+#+END_SRC
+
+* General Setup
+** Browser
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "brave")
+#+END_SRC
+** Scratch Buffer
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq doom-scratch-buffer-major-mode 'org-mode)
+(set-popup-rule! "^\\*doom:scratch.*\\*" :side 'right)
+#+END_SRC
+** User Info
+#+BEGIN_SRC elisp :tangle yes :results none
+(setq user-full-name    "Guilherme Gomes Haetinger"
+      user-mail-address "ghaetinger@gmail.com")
+#+END_SRC
