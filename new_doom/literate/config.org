@@ -1,0 +1,213 @@
+#+PROPERTY: header-args:emacs-lisp :tangle yes :results none
+#+TITLE: Literate Configuration
+#+AUTHOR: Guilherme Gomes Haetinger
+
+* Initialize server
+#+begin_src emacs-lisp :tangle yes
+(server-start)
+#+end_src
+* Libraries to load
+#+begin_src emacs-lisp
+(require 'org)
+(require 'jupyter)
+(require 'neotree)
+(require 'ox-icalendar)
+(require 'org-ref)
+(require 'org-agenda)
+(require 'company)
+(require 'company-go)
+(require 'org-protocol)
+(require 'org-roam-protocol)
+(require 'org-superstar)
+(require 'org-projectile)
+#+end_src
+* ORG
+#+begin_src emacs-lisp
+(setq org-directory "~/Desktop/Dropbox/org/"
+      org-agenda-files (list org-directory)
+      org-agenda-default-appointment-duration 60)
+
+(eval-after-load "tex-mode" '(fset 'tex-font-lock-subscript 'ignore))
+(defun set-tex-method ()
+  (set-input-method 'TeX)
+  (define-key evil-insert-state-local-map (kbd "_ _")
+    (lambda () (interactive) (insert "_")))
+  (define-key evil-insert-state-local-map (kbd "^ ^")
+    (lambda () (interactive) (insert "^"))))
+
+(with-eval-after-load 'org
+  (setq org-startup-indented t) ; Enable `org-indent-mode' by default
+  (add-hook 'org-mode-hook #'auto-fill-mode))
+
+(setq org-ellipsis " ↴")
+
+(setq org-icalendar-use-deadline
+      (cons 'event-if-todo-not-done org-icalendar-use-deadline)
+      org-icalendar-use-scheduled
+      (cons 'event-if-todo
+            (cons 'event-if-todo org-icalendar-use-deadline))
+      )
+(setf (nth 1 org-agenda-prefix-format) '(todo . "%l %i %-12:c"))
+
+(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+(setq auto-revert-interval 1)
+(add-hook 'pdf-view-mode-hook 'auto-revert-mode)
+
+(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+
+(setq org-scheduled-past-days 0)
+
+(setcar (nthcdr 4 org-emphasis-regexp-components) 10)
+(org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+
+(setq org-src-window-setup 'split-window-right)
+
+(setq org-roam-directory "~/Desktop/Dropbox/Roam/")
+(defun org-roam-insert-heading-time ()
+  (interactive)
+  (+org/insert-item-below 1)
+  (org-insert-time-stamp (current-time) t)
+  )
+(map! :leader :g "r f" 'org-roam-find-file
+      :leader :g "r i" 'org-roam-insert
+      :leader :g "r t" 'org-roam-insert-heading-time
+      :leader :g "r r" 'org-roam)
+
+(setq org-roam-capture-templates
+      '(("w" "Wiki" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n"
+         :unnarrowed t)
+        ("J" "Julia" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+PROPERTY: header-args:jupyter-julia :async yes :results replace :pandoc t :session Julia\n#+title: ${title}\n"
+         :unnarrowed t)
+        ("j" "Journal" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n* %T\n"
+         :unnarrowed t)))
+
+(setq org-roam-server-host "127.0.0.1"
+      org-roam-server-port 8080
+      org-roam-server-authenticate nil
+      org-roam-server-export-inline-images t
+      org-roam-server-serve-files nil
+      org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+      org-roam-server-network-poll t
+      org-roam-server-network-arrows nil
+      org-roam-server-network-label-truncate t
+      org-roam-server-network-label-truncate-length 60
+      org-roam-server-network-label-wrap-length 20)
+
+(add-to-list 'org-latex-packages-alist '("" "listings"))
+(setq org-latex-listings 'lstlistings)
+
+(org-projectile-per-project)
+(setq org-projectile-per-project-filepath "Project.org")
+(map! :leader :g "p n" 'org-projectile-project-todo-completing-read)
+
+(org-roam-server-mode)
+#+end_src
+* Programming
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (julia . t)
+   (python . t)
+   (R . t)
+   (jupyter . t)))
+
+(setq inferior-julia-program-name "julia")
+
+
+(setq company-tooltip-limit 20
+      company-idle-delay .3
+      company-echo-delay 0
+      company-begin-commands '(self-insert-command))
+(add-hook 'go-mode-hook (lambda ()
+                          (set (make-local-variable 'company-backends) '(company-go))
+                          (company-mode)))
+
+(setq exec-path (append exec-path '("/home/dewey/.config/go/bin/")))
+
+(defun set-selective-display-dlw (&optional level)
+  "Fold text indented same of more than the cursor.
+If level is set, set the indent level to LEVEL.
+If 'selective-display' is already set to LEVEL, clicking
+F5 again will unset 'selective-display' by setting it to 0."
+  (interactive "P")
+  (if (eq selective-display (1+ (current-column)))
+      (set-selective-display 0)
+    (set-selective-display (or level (1+ (current-column))))))
+
+(map! :after julia-mode
+      :map julia-mode-map
+      :leader
+      :g "zz" 'set-selective-display-dlw)
+
+(setq rustic-lsp-server 'rust-analyzer)
+#+end_src
+* Layout
+#+begin_src emacs-lisp
+(setq doom-font (font-spec :family "Iosevka" :size 15)
+      doom-big-font (font-spec :family "Iosevka" :size 20 :weight 'semi-light))
+
+;; <Color theme initialization code>
+(setq current-theme '(doom-monokai-pro)
+      doom-theme 'doom-monokai-pro)
+
+;; (defun synchronize-theme ()
+;;     (setq hour
+;;         (string-to-number
+;;             (substring (current-time-string) 11 13)))
+;;     (if (member hour (number-sequence 6 18))
+;;         (setq now '(doom-nord-light))
+;;         (setq now '(doom-dark+)))
+;;     (if (equal now current-theme)
+;;         nil
+;;         (setq current-theme now)
+;;         (load-theme (car now)) ) ) ;; end of (defun ...
+
+;; (run-with-timer 0 3600 'synchronize-theme)
+
+(setq display-line-numbers-type 'relative)
+
+(setq neo-theme 'icons
+      neo-window-width 50
+      neo-smart-open t)
+
+(map! :g "C-c c" 'open-literate-config
+      :leader :g "o p" 'neotree-toggle)
+      ;; :leader :g "o c" 'fci-mode)
+
+(defun +fl/txt-banner ()
+  (mapc (lambda (line)
+          (insert (propertize (+doom-dashboard--center +doom-dashboard--width (format "%-71s" line))
+                              'face 'doom-dashboard-banner) " ")
+          (insert "\n"))
+        (s-split "\n" ( f-read "~/.doom.d/dashboard/doge.txt") t)))
+
+(setq +doom-dashboard-ascii-banner-fn #'+fl/txt-banner)
+
+(setq evil-normal-state-cursor '(box "medium sea green")
+      evil-insert-state-cursor '(bar "medium sea green")
+      evil-visual-state-cursor '(hollow "orange"))
+
+(remove-hook! 'text-mode-hook '+fill-column-enable-h)
+(remove-hook! 'prog-mode-hook '+fill-column-enable-h)
+(remove-hook! 'conf-mode-hook '+fill-column-enable-h)
+#+end_src
+
+* Misc
+#+begin_src emacs-lisp
+(setq user-full-name "Guilherme G. Haetinger"
+      user-mail-address "ghaetinger@gmail.com")
+(global-emojify-mode)
+(require 'gitmoji)
+(setq gitmoji--insert-utf8-emoji t
+      gitmoji--display-utf8-emoji t) ;; These are the defaults.
+#+end_src
