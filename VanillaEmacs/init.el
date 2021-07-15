@@ -1,6 +1,6 @@
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (load-file (concat user-emacs-directory "/packages.el"))
-(load-file (concat user-emacs-directory "/general.el"))
+(load-file (concat user-emacs-directory "/kakoune_init.el"))
 
 ;; Path
 (when (memq window-system '(mac ns x))
@@ -29,15 +29,30 @@
 
 (setq custom-file (concat user-emacs-directory "/custom.el"))
 
-(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font Mono" :height 160)
+(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 140)
 
 (load-file (concat user-emacs-directory "/ligatures.el"))
+
+(setq hl-todo-keyword-faces
+      '(("TODO"   . "#FF0000")
+        ("FIXME"  . "#FF0000")
+        ("DEBUG"  . "#A020F0")
+        ("GOTCHA" . "#FF4500")
+        ("STUB"   . "#1E90FF")))
+
+(global-hl-todo-mode 1)
+
+;; Dashboard
+(setq dashboard-items '((recents  . 5)
+                        (projects . 10)
+                        (agenda . 5)))
+
+(dashboard-setup-startup-hook)
 
 ;; Usability
 (setq evil-want-keybinding nil)
 (require 'evil)
 (require 'evil-collection)
-(evil-mode 1)
 (evil-collection-init)
 
 (require 'which-key)
@@ -53,10 +68,12 @@
 
 (require 'undo-tree)
 (global-undo-tree-mode)
-(evil-set-undo-system 'undo-tree)
+;; (evil-set-undo-system 'undo-tree)
 
 (setq vterm-shell "/bin/zsh")
 (setq make-backup-files nil)
+(setq create-lockfiles nil)
+(setq initial-major-mode 'org-mode)
 
 ;; LSP
 (add-hook 'company-mode-hook 'company-box-mode)
@@ -69,6 +86,11 @@
 (add-to-list 'exec-path (expand-file-name "~/Documents/elixir-ls/"))
 (add-hook 'elixir-mode-hook 'lsp)
 (add-hook 'rust-mode-hook 'lsp)
+(setq lsp-enable-file-watchers t
+      lsp-file-watch-threshold 2000)
+
+(setq require-final-newline t)
+(add-hook 'before-save-hook 'lsp-format-buffer)
 
 ;; Org
 
@@ -77,4 +99,7 @@
 (setq org-latex-listings 'minted
       org-latex-packages-alist '(("" "minted"))
       org-latex-pdf-process '("xelatex -shell-escape %f"))
+(add-hook 'org-mode-hook 'auto-fill-mode)
 
+;; Keybinds
+(load-file (concat user-emacs-directory "/general.el"))

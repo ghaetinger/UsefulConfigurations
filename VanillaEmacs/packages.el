@@ -26,6 +26,8 @@ package-archive-priorities
 (quelpa 'undo-tree)
 (quelpa 'helm)
 (quelpa 'general)
+(quelpa 'use-package)
+(quelpa 'swiper-helm)
 
 ;; Writing
 (quelpa 'org)
@@ -39,6 +41,8 @@ package-archive-priorities
 ;; Looks
 (quelpa 'doom-themes)
 (quelpa 'telephone-line)
+(quelpa 'hl-todo)
+(quelpa 'dashboard)
 
 ;; LSP
 (quelpa 'lsp-mode)
@@ -52,3 +56,4 @@ package-archive-priorities
 (quelpa 'rustic)
 (quelpa 'julia-mode)
 (quelpa 'lsp-julia)
+(quelpa 'protobuf-mode)
