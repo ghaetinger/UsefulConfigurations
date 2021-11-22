@@ -28,15 +28,20 @@ package-archive-priorities
 (quelpa 'general)
 (quelpa 'use-package)
 (quelpa 'swiper-helm)
+(quelpa 'kakoune)
+(quelpa 'sudo-edit)
 
 ;; Writing
 (quelpa 'org)
 (quelpa 'org-beamer)
+(quelpa 'org-bullets)
 
 ;; Projects
 (quelpa 'projectile)
 (quelpa 'helm-projectile)
 (quelpa 'magit)
+(quelpa 'direnv)
+(quelpa 'helm-ag)
 
 ;; Looks
 (quelpa 'doom-themes)
@@ -56,4 +61,3 @@ package-archive-priorities
 (quelpa 'rustic)
 (quelpa 'julia-mode)
 (quelpa 'lsp-julia)
-(quelpa 'protobuf-mode)

@@ -1,6 +1,5 @@
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (load-file (concat user-emacs-directory "/packages.el"))
-(load-file (concat user-emacs-directory "/kakoune_init.el"))
 
 ;; Path
 (when (memq window-system '(mac ns x))
@@ -21,7 +20,7 @@
 
 (setq doom-themes-enable-bold t
       doom-themes-enable-italic t)
-(load-theme 'doom-one t)
+(load-theme 'doom-dracula t)
 
 (doom-themes-visual-bell-config)
 (doom-themes-neotree-config)
@@ -29,7 +28,7 @@
 
 (setq custom-file (concat user-emacs-directory "/custom.el"))
 
-(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 140)
+(set-face-attribute 'default nil :font "JetBrains Mono" :height 120)
 
 (load-file (concat user-emacs-directory "/ligatures.el"))
 
@@ -55,25 +54,30 @@
 (require 'evil-collection)
 (evil-collection-init)
 
-(require 'which-key)
-(which-key-mode)
-
-(require 'projectile)
-(require 'helm-projectile)
-(setq projectile-project-search-path '("~/Desktop/"))
-(projectile-mode +1)
-(helm-projectile-on)
-
 (setq-default indent-tabs-mode nil)
 
 (require 'undo-tree)
 (global-undo-tree-mode)
-;; (evil-set-undo-system 'undo-tree)
+(evil-mode)
+(evil-set-undo-system 'undo-tree)
 
 (setq vterm-shell "/bin/zsh")
 (setq make-backup-files nil)
 (setq create-lockfiles nil)
 (setq initial-major-mode 'org-mode)
+
+(require 'which-key)
+(which-key-mode)
+
+;; Projects
+
+(require 'projectile)
+(require 'helm-projectile)
+(setq projectile-project-search-path '("~/Build/"))
+(projectile-mode +1)
+(helm-projectile-on)
+
+(direnv-mode)
 
 ;; LSP
 (add-hook 'company-mode-hook 'company-box-mode)
@@ -83,7 +87,6 @@
 (require 'lsp-julia)
 (require 'rustic)
 (add-to-list 'auto-mode-alist '("\\.elixir2\\'" . elixir-mode))
-(add-to-list 'exec-path (expand-file-name "~/Documents/elixir-ls/"))
 (add-hook 'elixir-mode-hook 'lsp)
 (add-hook 'rust-mode-hook 'lsp)
 (setq lsp-enable-file-watchers t
@@ -98,8 +101,16 @@
 (require 'ox-latex)
 (setq org-latex-listings 'minted
       org-latex-packages-alist '(("" "minted"))
-      org-latex-pdf-process '("xelatex -shell-escape %f"))
+      org-latex-pdf-process '(
+                              "xelatex -shell-escape %f"
+                              "xelatex -shell-escape %f"
+                              ))
 (add-hook 'org-mode-hook 'auto-fill-mode)
+
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+(setq initial-major-mode 'org-mode)
 
 ;; Keybinds
 (load-file (concat user-emacs-directory "/general.el"))
+
+
