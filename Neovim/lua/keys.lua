@@ -1,18 +1,39 @@
-bind = require('binds')
+_bindfuncs = {}
+local bindfunc_i = 0
 
-bind('n', ',.', function() vim.cmd('BufferLineCycleNext') end, 'cmd')
-bind('n', ',,', function() vim.cmd('BufferLineCyclePrev') end, 'cmd')
-bind('n', ',k', function() vim.cmd('bdelete') end, 'cmd')
+local function map(mode, lhs, rhs, ...)
+  local opt = {}
+  for _, a in ipairs({...}) do opt[a] = true end
 
-bind('n', '.p', function() vim.cmd('NvimTreeToggle') end, 'cmd')
-bind('n', '.f', function() vim.lsp.buf.formatting() end, 'cmd')
-bind('n', '.l', function() vim.lsp.buf.hover() end, 'cmd')
-bind('n', '.g', function() vim.cmd('LazyGit') end, 'cmd')
+  if type(rhs) == 'function' then
+    bindfunc_i = bindfunc_i + 1
+    local name = 'bindfunc_' .. tostring(bindfunc_i)
+    _bindfuncs[name] = rhs
+    if opt.cmd then
+      rhs = '<cmd>call v:lua._bindfuncs.' .. name .. '()<cr>'
+      opt.cmd = nil
+    else
+      rhs = 'v:lua._bindfuncs.' .. name .. '()'
+      opt.expr = true
+    end
+  end
 
-bind('n', 'gd', function() vim.lsp.buf.definition() end, 'cmd')
-bind('n', 'gr', function() vim.lsp.buf.references() end, 'cmd')
+  return vim.api.nvim_set_keymap(mode, lhs, rhs, opt)
+end
 
-bind('n', 'ff', function() vim.cmd('Telescope find_files') end, 'cmd')
-bind('n', 'fg', function() vim.cmd('Telescope live_grep') end, 'cmd')
-bind('n', 'fb', function() vim.cmd('Telescope buffers') end, 'cmd')
-bind('n', 'fh', function() vim.cmd('Telescope help_tags') end, 'cmd')
+map('n', 'ff', require('telescope.builtin').find_files, 'cmd')
+map('n', 'fg', require('telescope.builtin').live_grep, 'cmd')
+map('n', 'fb', require('telescope.builtin').buffers, 'cmd')
+map('n', 'fh', require('telescope.builtin').help_tags, 'cmd')
+
+map('n', ',,', function() vim.cmd('BufferLineCyclePrev') end, 'cmd')
+map('n', ',.', function() vim.cmd('BufferLineCycleNext') end, 'cmd')
+map('n', ',k', function() vim.cmd('bdelete') end, 'cmd')
+
+
+map('n', '.g', function() vim.cmd('LazyGit') end, 'cmd')
+map('n', '.f', vim.lsp.buf.formatting, 'cmd')
+map('n', '.l', vim.lsp.buf.hover, 'cmd')
+
+map('n', 'gr', vim.lsp.buf.references, 'cmd')
+map('n', 'gd', vim.lsp.buf.declaration, 'cmd')
