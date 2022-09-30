@@ -22,7 +22,6 @@ end
 
 
 plug(tostring(os.getenv("HOME")) .. '/.vim/plugged', {
-    {'glepnir/galaxyline.nvim', ['branch'] = 'main'},
     'kyazdani42/nvim-web-devicons',
     'ryanoasis/vim-devicons',
     'arcticicestudio/nord-vim',
@@ -41,7 +40,21 @@ plug(tostring(os.getenv("HOME")) .. '/.vim/plugged', {
     'owozsh/amora',
     'voldikss/vim-floaterm',
     'neovim/nvim-lspconfig',
-    'nvim-lua/completion-nvim',
     'onsails/lspkind-nvim',
-    'neovimhaskell/haskell-vim'
+    'neovimhaskell/haskell-vim',
+    'b3nj5m1n/kommentary',
+    'hrsh7th/cmp-nvim-lsp',
+    'hrsh7th/cmp-buffer',
+    'hrsh7th/cmp-path',
+    'hrsh7th/cmp-cmdline',
+    'hrsh7th/nvim-cmp',
+    'morhetz/gruvbox',
+    'nvim-lualine/lualine.nvim',
+    'kyazdani42/nvim-web-devicons',
+    'nvim-orgmode/orgmode', 
+    'ThePrimeagen/vim-be-good',
+    'folke/which-key.nvim',
+    'goolord/alpha-nvim',
+    'akinsho/org-bullets.nvim',
+    'nvim-neorg/neorg'
 })

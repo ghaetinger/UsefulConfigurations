@@ -1,5 +1,8 @@
-require("plug")
-require("style")
-require("opts")
-require("keys")
-require("lang")
+require'plug'
+require'style'
+require'opts'
+require'keys'
+require'lang'
+require'org'
+require'line'
+require'dashboard'

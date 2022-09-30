@@ -1,39 +1,31 @@
-_bindfuncs = {}
-local bindfunc_i = 0
+local cmp = require'cmp'
+local wk  = require'which-key'
+local telescope = require'telescope.builtin'
 
-local function map(mode, lhs, rhs, ...)
-  local opt = {}
-  for _, a in ipairs({...}) do opt[a] = true end
+wk.setup {}
+wk.register({
+    [","] = {
+        name = "Buffers",
+        [","] = {"<cmd>BufferLineCyclePrev<cr>", "<-" },
+        ["."] = {"<cmd>BufferLineCycleNext<cr>", "->" },
+        k     = {"<cmd>bdelete<cr>", "Kill Buffer" }
 
-  if type(rhs) == 'function' then
-    bindfunc_i = bindfunc_i + 1
-    local name = 'bindfunc_' .. tostring(bindfunc_i)
-    _bindfuncs[name] = rhs
-    if opt.cmd then
-      rhs = '<cmd>call v:lua._bindfuncs.' .. name .. '()<cr>'
-      opt.cmd = nil
-    else
-      rhs = 'v:lua._bindfuncs.' .. name .. '()'
-      opt.expr = true
-    end
-  end
-
-  return vim.api.nvim_set_keymap(mode, lhs, rhs, opt)
-end
-
-map('n', 'ff', require('telescope.builtin').find_files, 'cmd')
-map('n', 'fg', require('telescope.builtin').live_grep, 'cmd')
-map('n', 'fb', require('telescope.builtin').buffers, 'cmd')
-map('n', 'fh', require('telescope.builtin').help_tags, 'cmd')
-
-map('n', ',,', function() vim.cmd('BufferLineCyclePrev') end, 'cmd')
-map('n', ',.', function() vim.cmd('BufferLineCycleNext') end, 'cmd')
-map('n', ',k', function() vim.cmd('bdelete') end, 'cmd')
-
-
-map('n', '.g', function() vim.cmd('LazyGit') end, 'cmd')
-map('n', '.f', vim.lsp.buf.formatting, 'cmd')
-map('n', '.l', vim.lsp.buf.hover, 'cmd')
-
-map('n', 'gr', vim.lsp.buf.references, 'cmd')
-map('n', 'gd', vim.lsp.buf.declaration, 'cmd')
+    },
+    ["."] = {
+        name = "Floating Things",
+        g = {"<cmd>LazyGit<cr>", "Lazy Git" },
+        f = { telescope.find_files, "Find File" },
+        r = { telescope.live_grep, "Live Grep" },
+        b = { telescope.buffers, "Buffers" },
+        h = { telescope.help_tags, "Help Tags" }
+    },
+    g = {
+        name = "Code",
+        p = { vim.lsp.buf.formatting, "Pretty Code" },
+        h = { vim.lsp.buf.hover, "Docs" },
+        r = { vim.lsp.buf.references, "References" },
+        d = { vim.lsp.buf.declaration, "Declaration" },
+        a = { cmp.mapping.complete, "Complete Here" },
+        c = { name = "Komment" }
+    }
+})
