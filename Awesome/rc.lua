@@ -105,8 +105,8 @@ local altkey       = "Mod1"
 local terminal     = "kitty"
 local vi_focus     = false -- vi-like client focus https://github.com/lcpz/awesome-copycats/issues/275
 local cycle_prev   = true  -- cycle with only the previously focused client or all https://github.com/lcpz/awesome-copycats/issues/274
-local editor       = os.getenv("EDITOR") or "nvim"
-local browser      = "chromium"
+local editor       = "nvim"
+local browser      = "firefox"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "1", "2", "3", "4", "5" }
@@ -348,8 +348,10 @@ globalkeys = gears.table.join(
               end,
               {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
-    awful.key({ modkey }, "p", function() awful.util.spawn('rofi -combi-modi window,drun,ssh -theme Arc-Dark -font "CozetteVector 9" -show combi -show-icons') end,
+    awful.key({ modkey }, "p", function() awful.util.spawn('rofi -modi drun -show drun -show-icons') end,
               {description = "show the menubar", group = "launcher"}),
+    awful.key({ modkey, "Control"   }, "l", function() awful.util.spawn('i3lock -n -c 000000') end,
+              {description = "lock", group = "launcher"}),
     awful.key({ modkey, "Shift"   }, "p", xrandr.xrandr,
               {description = "select previous", group = "layout"})
 )
@@ -363,7 +365,9 @@ clientkeys = mytable.join(
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
-    awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end,
+    awful.key({ modkey, "Shift"  }, "c",      function (c) c:kill()                         end,
+              {description = "close", group = "client"}),
+    awful.key({ modkey,   }, "c",    function() awful.util.spawn('guvcview -g none -F 60') end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
               {description = "toggle floating", group = "client"}),
@@ -471,6 +475,8 @@ root.keys(globalkeys)
 
 -- {{{ Rules
 
+local camera_width = 1000
+
 -- Rules to apply to new clients (through the "manage" signal).
 awful.rules.rules = {
     -- All clients will match this rule.
@@ -517,6 +523,19 @@ awful.rules.rules = {
           "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
         }
       }, properties = { floating = true }},
+    { rule_any = {
+        instance = { "guvcview" },
+        class = {},
+        name = {},
+        role = {}
+      }, properties = {
+          floating = true,
+          ontop=true,
+          sticky = true,
+          width = camera_width, height = (1080/1920) * camera_width,
+          x = 3830 - camera_width,
+          y = 2150 - (1080/1920) * camera_width,
+      }},
 
     -- Add titlebars to normal clients and dialogs
     { rule_any = {type = { "normal", "dialog" }
@@ -534,10 +553,6 @@ awful.rules.rules = {
 
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c)
-    -- Set the windows at the slave,
-    -- i.e. put it at the end of others instead of setting it master.
-    -- if not awesome.startup then awful.client.setslave(c) end
-
     if awesome.startup
       and not c.size_hints.user_position
       and not c.size_hints.program_position then
@@ -602,12 +617,11 @@ client.connect_signal("focus", function(c) c.border_color = beautiful.border_foc
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 
 beautiful.useless_gap = 10
+beautiful.border_width = 2
+beautiful.border_focus = "#FFFFFFFF"
 
 awful.util.spawn("xset r rate 220 30")
 awful.util.spawn("setxkbmap -layout us -variant intl")
-awful.util.spawn("redshift")
 awful.util.spawn("nitrogen --restore")
 awful.util.spawn("flameshot")
-awful.util.spawn("/home/dewey/.util/.dropbox-dist/dropboxd")
-
 -- }}}

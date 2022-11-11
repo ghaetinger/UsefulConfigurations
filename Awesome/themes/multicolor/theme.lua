@@ -16,7 +16,7 @@ local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
 
 local theme                                     = {}
 theme.confdir                                   = os.getenv("HOME") .. "/.config/awesome/themes/multicolor"
-theme.font                                      = "Terminus 8"
+theme.font                                      = "JetBrainsMonoNL Nerd Font 8"
 theme.menu_bg_normal                            = "#000000"
 theme.menu_bg_focus                             = "#000000"
 theme.bg_normal                                 = "#000000"
@@ -31,7 +31,7 @@ theme.border_normal                             = "#1c2022"
 theme.border_focus                              = "#606060"
 theme.border_marked                             = "#3ca4d8"
 theme.menu_border_width                         = 0
-theme.menu_width                                = dpi(130)
+theme.menu_width                                = dpi(150)
 theme.menu_submenu_icon                         = theme.confdir .. "/icons/submenu.png"
 theme.menu_fg_normal                            = "#aaaaaa"
 theme.menu_fg_focus                             = "#ff8c00"
@@ -174,7 +174,7 @@ local temp = lain.widget.temp({
 })
 
 -- Battery
-local baticon = wibox.widget.imagebox(theme.widget_batt)
+--[[ local baticon = wibox.widget.imagebox(theme.widget_batt)
 local bat = lain.widget.bat({
     settings = function()
         local perc = bat_now.perc ~= "N/A" and bat_now.perc .. "%" or bat_now.perc
@@ -185,7 +185,7 @@ local bat = lain.widget.bat({
 
         widget:set_markup(markup.fontfg(theme.font, theme.fg_normal, perc .. " "))
     end
-})
+}) ]]
 
 -- ALSA volume
 local volicon = wibox.widget.imagebox(theme.widget_vol)
@@ -324,7 +324,7 @@ function theme.at_screen_connect(s)
             tempicon,
             temp.widget,
             baticon,
-            bat.widget,
+            -- bat.widget,
             clockicon,
             mytextclock,
         },

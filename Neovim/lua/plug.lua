@@ -55,6 +55,12 @@ plug(tostring(os.getenv("HOME")) .. '/.vim/plugged', {
     'ThePrimeagen/vim-be-good',
     'folke/which-key.nvim',
     'goolord/alpha-nvim',
-    'akinsho/org-bullets.nvim',
-    'nvim-neorg/neorg'
+    'nvim-neorg/neorg',
+    'catppuccin/nvim',
+    'B4mbus/oxocarbon-lua.nvim',
+    'rcarriga/nvim-notify',
+    'olimorris/onedarkpro.nvim',
+    'Mofiqul/vscode.nvim',
+    'L3MON4D3/LuaSnip',
+    'saadparwaiz1/cmp_luasnip' 
 })

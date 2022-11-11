@@ -1,12 +1,32 @@
-vim.cmd("colorscheme gruvbox")
 vim.cmd("set termguicolors")
 
-require'bufferline'.setup{}
+require'vscode'.setup{}
 
 require'nvim-treesitter.configs'.setup {
+  ensure_installed = {
+    norg,
+    norg_meta,
+    norg_table 
+  },
   highlight = {
     enable = true
   },
 }
 
-require'lspkind'.init {}
+local border = {
+      {"╭", "FloatBorder"},
+      {"─", "FloatBorder"},
+      {"╮", "FloatBorder"},
+      {"│", "FloatBorder"},
+      {"╯", "FloatBorder"},
+      {"─", "FloatBorder"},
+      {"╰", "FloatBorder"},
+      {"│", "FloatBorder"},
+}
+
+local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+  opts = opts or {}
+  opts.border = opts.border or border
+  return orig_util_open_floating_preview(contents, syntax, opts, ...)
+end

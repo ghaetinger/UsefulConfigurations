@@ -1,3 +1,5 @@
+local custom = require'custom'
+
 local cmp = require'cmp'
 local wk  = require'which-key'
 local telescope = require'telescope.builtin'
@@ -6,8 +8,8 @@ wk.setup {}
 wk.register({
     [","] = {
         name = "Buffers",
-        [","] = {"<cmd>BufferLineCyclePrev<cr>", "<-" },
-        ["."] = {"<cmd>BufferLineCycleNext<cr>", "->" },
+        [","] = {"<cmd>bprevious<cr>", "<-" },
+        ["."] = {"<cmd>bnext<cr>", "->" },
         k     = {"<cmd>bdelete<cr>", "Kill Buffer" }
 
     },
@@ -21,11 +23,16 @@ wk.register({
     },
     g = {
         name = "Code",
-        p = { vim.lsp.buf.formatting, "Pretty Code" },
+        p = { vim.lsp.buf.format, "Pretty Code" },
         h = { vim.lsp.buf.hover, "Docs" },
         r = { vim.lsp.buf.references, "References" },
         d = { vim.lsp.buf.declaration, "Declaration" },
+        w = { vim.diagnostic.open_float, "What's going on here?" },
         a = { cmp.mapping.complete, "Complete Here" },
         c = { name = "Komment" }
+    },
+    q = {
+        name = "Neorg",
+        e = { custom.neorg_latex_export, "Export Neorg file" } 
     }
 })

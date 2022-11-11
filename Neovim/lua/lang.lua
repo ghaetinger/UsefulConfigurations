@@ -1,5 +1,6 @@
 local cmp = require'cmp'
 local lspkind = require'lspkind'
+
 cmp.setup({
     mapping = cmp.mapping.preset.insert({
         ['<C-n>'] = function(fallback)
@@ -19,44 +20,63 @@ cmp.setup({
         ['<CR>'] = cmp.mapping.confirm({ select = true }),
         ['<C-e>'] = cmp.mapping.abort(),
         ['<C-Space>'] = cmp.mapping.complete(),
-        ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<C-j>'] = cmp.mapping.scroll_docs(4),
+        ['<C-k>'] = cmp.mapping.scroll_docs(-4),
     }),
+    snippet = {
+      expand = function(args)
+        require'luasnip'.lsp_expand(args.body)
+      end
+    },
+    window = {
+        documentation = cmp.config.window.bordered(),
+        completion = cmp.config.window.bordered(),
+    },
     completion = {
         keyword_length = 1,
         completeopt = "menu,noselect"
     },
     sources = {
+        { name = 'luasnip' },
+        { name = 'path' },
         { name = 'nvim_lsp' },
         { name = 'orgmode' },
-        { name = 'neorg' }
+        { name = 'neorg' },
     },
     formatting = {
         format = lspkind.cmp_format({
             mode = "symbol_text",
-            menu = ({nvim_lsp = "[LSP]"})
+            menu = ({
+                nvim_lsp = '🤓',
+                luasnip = '🌙',
+            })
         })
     }
 })
 
-local capabilities = require'cmp_nvim_lsp'.update_capabilities(vim.lsp.protocol.make_client_capabilities())
 local lspcfg = require'lspconfig' 
-lspcfg.julials.setup  { capabilities=capabilities }
-lspcfg.pylsp.setup    { capabilities=capabilities }
-lspcfg.hls.setup      { capabilities=capabilities }
-lspcfg.ccls.setup     { capabilities=capabilities }
-lspcfg.texlab.setup   { capabilities=capabilities }
-lspcfg.tsserver.setup { capabilities=capabilities }
 
-require'neorg'.setup {
-    load = {
-        ['core.defaults'] = {},
-        ['core.export'] = {},
-        ['core.norg.completion'] = {
-            config = {engine = 'nvim-cmp'}
-        },
-        ['core.export.markdown'] = {
-            config = {extensions = {'metadata'}}
+lspcfg.pylsp.setup {}
+lspcfg.sourcekit.setup {}
+lspcfg.rust_analyzer.setup {
+        settings = {
+        ["rust-analyzer"] = {
+            imports = {
+                granularity = {
+                    group = "module",
+                },
+                prefix = "self",
+            },
+            cargo = {
+                buildScripts = {
+                    enable = true,
+                },
+            },
+            procMacro = {
+                enable = true
+            },
         }
     }
 }
+
+require("luasnip.loaders.from_vscode").lazy_load()
