@@ -1,6 +1,16 @@
 vim.cmd("set termguicolors")
+-- vim.cmd("colorscheme dracula")
 
-require'vscode'.setup{}
+vscode = require'vscode'
+vim.o.background = 'dark'
+-- vim.o.background = 'light'
+vscode.setup({
+    italic_comments = true,
+})
+vscode.load()
+vim.cmd("colorscheme onedark")
+
+require'todo-comments'.setup{}
 
 require'nvim-treesitter.configs'.setup {
   ensure_installed = {
@@ -12,6 +22,8 @@ require'nvim-treesitter.configs'.setup {
     enable = true
   },
 }
+
+require'barbar'.setup{}
 
 local border = {
       {"╭", "FloatBorder"},

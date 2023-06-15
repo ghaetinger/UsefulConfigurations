@@ -1,15 +1,17 @@
-local custom = require'custom'
-
 local cmp = require'cmp'
 local wk  = require'which-key'
 local telescope = require'telescope.builtin'
+
+function diag_function()
+    telescope.diagnostics({bufnr=0})
+end
 
 wk.setup {}
 wk.register({
     [","] = {
         name = "Buffers",
-        [","] = {"<cmd>bprevious<cr>", "<-" },
-        ["."] = {"<cmd>bnext<cr>", "->" },
+        [","] = {"<cmd>BufferPrevious<cr>", "<-" },
+        ["."] = {"<cmd>BufferNext<cr>", "->" },
         k     = {"<cmd>bdelete<cr>", "Kill Buffer" }
 
     },
@@ -19,7 +21,10 @@ wk.register({
         f = { telescope.find_files, "Find File" },
         r = { telescope.live_grep, "Live Grep" },
         b = { telescope.buffers, "Buffers" },
-        h = { telescope.help_tags, "Help Tags" }
+        h = { telescope.help_tags, "Help Tags" },
+        w = { diag_function, "Show me buffer diagnostics" },
+        W = { telescope.diagnostics, "Show me ALL diagnostics" },
+        t = {"<cmd>NvimTreeToggle<cr>", "File Tree" }
     },
     g = {
         name = "Code",
@@ -31,8 +36,4 @@ wk.register({
         a = { cmp.mapping.complete, "Complete Here" },
         c = { name = "Komment" }
     },
-    q = {
-        name = "Neorg",
-        e = { custom.neorg_latex_export, "Export Neorg file" } 
-    }
 })

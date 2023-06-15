@@ -56,8 +56,24 @@ cmp.setup({
 
 local lspcfg = require'lspconfig' 
 
-lspcfg.pylsp.setup {}
-lspcfg.sourcekit.setup {}
+lspcfg.pyright.setup {}
+lspcfg.ruff_lsp.setup{}
+lspcfg.pylsp.setup {
+  settings = {
+    pylsp = {
+      plugins = {
+        black = {
+            enabled = true
+        },
+        jedi_completion = {
+            enabled = false
+        }
+      }
+    }
+  }
+}
+
+-- lspcfg.sourcekit.setup {}
 lspcfg.rust_analyzer.setup {
         settings = {
         ["rust-analyzer"] = {
@@ -78,5 +94,7 @@ lspcfg.rust_analyzer.setup {
         }
     }
 }
+lspcfg.pyright.setup {}
+lspcfg.clangd.setup{}
 
 require("luasnip.loaders.from_vscode").lazy_load()
